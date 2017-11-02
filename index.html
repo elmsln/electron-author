@@ -78,9 +78,15 @@
       });
       // Save
       save.addEventListener('click', function(e) {
+        let content = b.haxToContent();
         var fs = require('fs');
-        try { fs.writeFileSync('./user/myfile.html', content, 'utf-8'); }
-        catch(e) { alert('Failed to save the file !'); }
+        const remote = require('remote'),
+        app = remote.require('app');
+        var basepath = app.getAppPath();
+        fs.appendFile(basepath + '/user/myfile.html', content, (err) => {
+          if (err) throw err;
+          console.log('The "data to append" was appended to file!');
+        });
       });
     </script>
     <script>
