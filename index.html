@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>ELMS:LN - Authoring</title>
+    <link rel="import" href="webcomponents/hax-body/hax-body.html">
+    <link rel="import" href="webcomponents/hax-panel/hax-panel.html">
+    <link rel="import" href="webcomponents/lrnsys-layout/lrnsys-dialog.html">
+    <link rel="import" href="webcomponents/paper-toast/paper-toast.html">
+  </head>
+  <body>
+    <div style="margin-left:300px;">
+      <hax-body id="body" edit-mode>
+            <h2>Heading 2</h2>
+            <p>A whole bunch of text in here that's awesome!</p>
+            <h3>Heading 3</h3>
+            <p>A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!A whole bunch of text in here that's awesome!</p>
+            <p>Another paragraph that's a bit of a break from a whole bunch of text in here that's awesome!</p>
+      </hax-body>
+      <paper-button id="savebutton">Save content</paper-button>
+      <paper-button id="togglebutton">Toggle menu</paper-button>
+    </div>
+    <!-- potential wiring to make this work -->
+    <hax-panel id="panel" opened>
+      <span slot="after-global">
+      <lrnsys-collapselist-item>
+        <span slot="label"><div class="label">Content outline</div></span>
+        <span slot="content" style="display:flex;">
+          <hax-panel-item
+            icon="editor:linear-scale"
+            icon-class="black-text"
+            label="Add sibling page"
+            event-name="add-page" wide></hax-panel-item>
+          <hax-panel-item
+            icon="hardware:keyboard-return"
+            icon-class="grey-text text-darken-2 flip-icon"
+            label="Add child page"
+            event-name="add-child-page" wide></hax-panel-item>
+        </span>
+      </lrnsys-collapselist-item>
+      </span>
+    </hax-panel>
+    <paper-toast id="toast"></paper-toast>
+    <lrnsys-dialog body-append id="dialog" title="See HTML">
+      <h2 slot="header">HTML generated</h2>
+      <div>
+        <textarea id="textarea" rows="20" style="width:100%;"></textarea>
+      </div>
+    </lrnsys-dialog>
+    <script>
+      var p = document.querySelector('#panel');
+      var b = document.querySelector('#body');
+      var button = document.querySelector('#togglebutton');
+      var save = document.querySelector('#savebutton');
+      // alert if there was an error loading content
+      p.addEventListener('hax-content-insert', function(e) {
+        document.querySelector('#toast').show(e.detail.eventName);
+        b.haxInsert(e.detail.tag, e.detail.content);
+      });
+      // alert if there was an error loading content
+      p.addEventListener('hax-item-selected', function(e) {
+        document.querySelector('#toast').show(e.detail.eventName);
+        if (e.detail.eventName === 'advanced-import-export') {
+          let content = b.haxToContent();
+          document.querySelector('#textarea').innerHTML = content;
+          document.querySelector('#dialog').toggleDialog();
+        }
+      });
+      // alert if there was an error loading content
+      b.addEventListener('hax-body-tag-removed', function(e) {
+        document.querySelector('#toast').show('deleted ' + e.detail.node.tagName);
+      });
+      // simple toggle for state to ensure it matches
+      button.addEventListener('click', function(e) {
+        window.open = !window.open;
+        p.opened = window.open;
+        b.editMode = window.open;
+      });
+      // Save
+      save.addEventListener('click', function(e) {
+        var fs = require('fs');
+        try { fs.writeFileSync('./user/myfile.html', content, 'utf-8'); }
+        catch(e) { alert('Failed to save the file !'); }
+      });
+    </script>
+    <script>
+      // You can also require other files to run in this process
+      require('./renderer.js')
+    </script>
+  </body>
+</html>
